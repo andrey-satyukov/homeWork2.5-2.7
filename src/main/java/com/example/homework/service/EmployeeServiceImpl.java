@@ -10,14 +10,20 @@ import java.util.*;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final Map<String, Employee> employees;
+    private final Map<String, Employee> employees = new HashMap<>();
+    private final ValidatorService validatorService;
 
-    public EmployeeServiceImpl() {
-        this.employees = new HashMap<>();
+    public EmployeeServiceImpl(ValidatorService validatorService) {
+        this.validatorService = validatorService;
     }
+
     @Override
     public Employee add(String firstName, String lastName, int salary, int departament) {
-        Employee employee = new Employee(firstName, lastName, salary, departament);
+        Employee employee = new Employee(
+                validatorService.validateName(firstName),
+                validatorService.validateSurname(lastName),
+                salary,
+                departament);
         if (employees.containsKey(employee.getFullName())) {
             throw new EmployeeAlreadyAddedException();
         }
