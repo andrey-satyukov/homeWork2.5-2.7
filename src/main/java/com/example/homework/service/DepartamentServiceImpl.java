@@ -5,26 +5,49 @@ import com.example.homework.model.Employee;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class DepartamentServiceImpl implements DepartamentService {
-     EmployeeServiceImpl employeeService = new EmployeeServiceImpl();
+    private final EmployeeService employeeService;
+
+    public DepartamentServiceImpl(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
 
     @Override
-    public List<Employee> maxSalary(int departament) {
+    public Employee maxSalary(int departament) {
+        List<Employee> employeeList = new ArrayList<>(employeeService.findAll());
+
+        return employeeList.stream()
+                .filter(employee -> employee.getDepartament() == departament)
+                .max(Comparator.comparingInt(Employee::getSalary))
+                .orElse(null);
+    }
+
+    @Override
+    public Employee minSalary(int departament) {
+        List<Employee> employeeList = new ArrayList<>(employeeService.findAll());
+        return employeeList.stream()
+                .filter(e -> e.getDepartament() == departament)
+                .min(Comparator.comparingInt(employee -> employee.getSalary()))
+                .orElse(null);
+    }
+
+    @Override
+    public List<Employee> returnAll() {
         List<Employee> employeeList = new ArrayList<>(employeeService.findAll());
         return employeeList;
     }
 
     @Override
-    public Employee minSalary(int departament) {
-        return null;
-    }
-
-    @Override
-    public Employee returnAll(int departament) {
-        return null;
+    public List<Employee> all(int departamentId) {
+        List<Employee> employeeList = new ArrayList<>(employeeService.findAll());
+        return employeeList.stream()
+                .filter(e -> e.getDepartament() == departamentId)
+                .collect(Collectors.toList());
     }
 }
