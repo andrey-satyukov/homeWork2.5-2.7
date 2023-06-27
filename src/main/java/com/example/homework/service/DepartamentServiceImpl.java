@@ -1,13 +1,12 @@
 package com.example.homework.service;
 
+import com.example.homework.exception.DepartmentNotFoundException;
 import com.example.homework.exception.EmployeeAlreadyAddedException;
+import com.example.homework.exception.EmployeeNotFoundException;
 import com.example.homework.model.Employee;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,22 +18,33 @@ public class DepartamentServiceImpl implements DepartamentService {
     }
 
     @Override
-    public Employee maxSalary(int departament) {
+    public int sumSalary(int departament) {
         List<Employee> employeeList = new ArrayList<>(employeeService.findAll());
 
         return employeeList.stream()
                 .filter(employee -> employee.getDepartament() == departament)
-                .max(Comparator.comparingInt(Employee::getSalary))
-                .orElse(null);
-    }
+                .mapToInt(Employee::getSalary)
+                .sum();
 
+    }
     @Override
-    public Employee minSalary(int departament) {
+    public int maxSalary(int departament) {
+        List<Employee> employeeList = new ArrayList<>(employeeService.findAll());
+
+        return employeeList.stream()
+                .filter(employee -> employee.getDepartament() == departament)
+                .map(Employee::getSalary)
+                .max(Comparator.naturalOrder())
+                .orElseThrow(DepartmentNotFoundException::new);
+    }
+    @Override
+    public int minSalary(int departament) {
         List<Employee> employeeList = new ArrayList<>(employeeService.findAll());
         return employeeList.stream()
-                .filter(e -> e.getDepartament() == departament)
-                .min(Comparator.comparingInt(employee -> employee.getSalary()))
-                .orElse(null);
+                .filter(employee -> employee.getDepartament() == departament)
+                .map(Employee::getSalary)
+                .min(Comparator.naturalOrder())
+                .orElseThrow(DepartmentNotFoundException::new);
     }
 
     @Override
@@ -49,5 +59,11 @@ public class DepartamentServiceImpl implements DepartamentService {
         return employeeList.stream()
                 .filter(e -> e.getDepartament() == departamentId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Integer, List<Employee>> employeeGroupByDepartment() {
+        return employeeService.findAll().stream()
+                .collect(Collectors.groupingBy(Employee::getDepartament));
     }
 }

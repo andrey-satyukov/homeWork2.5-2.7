@@ -21,7 +21,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee add(String firstName, String lastName, int salary, int departament) {
         Employee employee = new Employee(
                 validatorService.validateName(firstName),
-                validatorService.validateName(lastName),
+                validatorService.validateSurname(lastName),
                 salary,
                 departament);
         if (employees.containsKey(employee.getFullName())) {
